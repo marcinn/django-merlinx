@@ -1,28 +1,33 @@
+"""
+MerlinX Gate integration module
+Author: Marcin Nowak (marcin.j.nowak@gmail.com)
+License: BSD
+"""
+
 import urllib
 import random
 
-class PartialGateResult(dict):
+
+class PartialResult(dict):
+    """
+    class that represents partial result
+    """
     def __unicode__(self):
         return ''.join(self.items())
 
-    def __getattr__(self, key):
-        return self[key]
 
-    @property
-    def javascripts(self):
-        return self.headerjs
-
-    @property
-    def stylesheets(self):
-        return self.headercss
-
-
-class StringGateResult(str):
+class StringResult(str):
+    """
+    class that represents string result
+    """
     pass
 
 
 
-class EP3Gate(object):
+class EP3Client(object):
+    """
+    EP3 client class
+    """
 
     IBEURL = 'http://ibe01.merlinx.pl/easypax3/agent'
 
@@ -51,11 +56,15 @@ class EP3Gate(object):
         contents = f.read()
 
         if not parts:
-            return StringGateResult(contents)   
+            return StringResult(contents)   
 
-        return PartialGateResult(self._parse_parts(contents))
+        return PartialResult(self._parse_parts(contents))
 
     def _parse_parts(self, content):
+        """
+        parse returned content
+        returns dict of parts
+        """
         parts = {}
         while content:
             plen, pname = int(content[:10]), content[10:30].strip()
@@ -64,10 +73,20 @@ class EP3Gate(object):
         return parts
 
 
+class Gate(object):
+    """
+    MerlinX Gate integreation API
+    """
 
-if __name__ == '__main__':
+    def __init__(self, client):
+        """
+        instantiate Gate API with specified client instance
+        """
+        self.client = client
 
-    gate = EP3Gate(4078, 'test')
-    r = gate.fetch()
-    print r.stylesheets
+    def search(self):
+        pass
+
+    def search_hotels(self):
+        pass
 
