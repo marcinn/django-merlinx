@@ -108,11 +108,15 @@ class SimpleGate(object):
         return u''.join(self.parts.values())
 
     def __getattr__(self, key):
-        return self.parts[key]
+        return self.parts.get(key)
 
     @property
     def ns(self):
         return self.client.gate
+
+    @property
+    def step(self):
+        return self.parts.get('step', 1)
 
 
 
