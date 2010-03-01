@@ -1,8 +1,8 @@
 from django.conf import settings
 
 try:
-    from netwizard.registry.config import DatabaseRegistryConfig
-    config = DatabaseRegistryConfig('merlinx.gate.config')
+    import registry
+    config = registry.open('merlinx.gate.config')
 except ImportError:
     config = {}
 
