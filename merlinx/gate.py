@@ -107,6 +107,9 @@ class SimpleGate(object):
     def get_all(self):
         return u''.join(self.parts.values())
 
+    def validate(self, opts):
+        return self.client.fetch(**opts)
+
     def __getattr__(self, key):
         return self.parts.get(key)
 
