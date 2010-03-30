@@ -128,3 +128,26 @@ def simple_gate(agent, affiliate, ns='ep3'):
     gate = SimpleGate(client)
     return gate
 
+
+class Query(object):
+
+    def __init__(self, client):
+        self.client = client
+        self._args = {}
+
+    def filter(self, **kwargs):
+        self._args.update(kwargs)
+        
+
+class MerlinX(object):
+    """
+    MerlinX API
+    """
+
+    def __init__(self, client):
+        self.client = client
+        self.query = Query(client)
+
+    def filter(self, **kwargs):
+        self.query.filter(**kwargs)
+
