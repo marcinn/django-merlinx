@@ -4,8 +4,20 @@ Author: Marcin Nowak (marcin.j.nowak@gmail.com)
 License: BSD
 """
 
-import urllib
-import random
+import re
+from client import EP3Client
+
+def parse_response(response):
+    """
+    parse returned content
+    returns dict of parts
+    """
+    parts = {}
+    while response:
+        plen, pname = int(response[:10]), response[10:30].strip()
+        parts[pname] = response[30:plen+30].decode('utf8')
+        response = response[plen+30:]
+    return parts
 
 
 class PartialResult(dict):
@@ -21,55 +33,6 @@ class StringResult(str):
     class that represents string result
     """
     pass
-
-
-
-class EP3Client(object):
-    """
-    EP3 client class
-    """
-
-    IBEURL = 'http://ibe01.merlinx.pl/easypax3/agent'
-
-    def __init__(self, agent, affiliate, gate, baseurl=None):
-        self.agent = agent
-        self.affiliate = affiliate
-        self.gate = gate
-        self.baseurl = baseurl
-
-    def fetch(self, parts=None, plain=False, searchtype=None, **params):
-        """
-        returns PartialGateResult or StringGateResult instance
-        """
-        params.update({
-                'gate': self.gate,
-                'rnd': random.randint(1, 100000),
-                })
-        if parts:
-            params['gateparts'] = ','.join(parts)
-        
-        url  = '%s/%s/%s/%s?%s' % (self.IBEURL, self.agent, self.affiliate,
-                searchtype or '', urllib.unquote(urllib.urlencode(params)))
-
-        f = urllib.urlopen(url)
-        contents = f.read()
-
-        if not parts:
-            return StringResult(contents)   
-
-        return PartialResult(self._parse_parts(contents))
-
-    def _parse_parts(self, content):
-        """
-        parse returned content
-        returns dict of parts
-        """
-        parts = {}
-        while content:
-            plen, pname = int(content[:10]), content[10:30].strip()
-            parts[pname] = content[30:plen+30].decode('utf8')
-            content = content[plen+30:]
-        return parts
 
 
 class SimpleGate(object):
@@ -89,7 +52,8 @@ class SimpleGate(object):
         self.parts = {}
 
     def _search(self, type, **opts):
-        parts = self.client.fetch(searchtype=type, parts=self.default_parts + ['searchform'], **opts)
+        parts = parse_response(self.client.fetch(searchtype=type,
+            parts=self.default_parts + ['searchform'], **opts))
         self.stylesheets = parts['headercss']
         self.javascripts = parts['headerjs']
         self.parts = parts
@@ -128,26 +92,4 @@ def simple_gate(agent, affiliate, ns='ep3'):
     gate = SimpleGate(client)
     return gate
 
-
-class Query(object):
-
-    def __init__(self, client):
-        self.client = client
-        self._args = {}
-
-    def filter(self, **kwargs):
-        self._args.update(kwargs)
-        
-
-class MerlinX(object):
-    """
-    MerlinX API
-    """
-
-    def __init__(self, client):
-        self.client = client
-        self.query = Query(client)
-
-    def filter(self, **kwargs):
-        self.query.filter(**kwargs)
 
