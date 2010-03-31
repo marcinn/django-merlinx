@@ -8,4 +8,6 @@ merlinx = simple_api(settings.MERLINX_AGENT_ID,
 
 class MerlinXQuery(Widget):
     def get_context(self, value, options):
-        return {'result': merlinx.filter(**options).result,}
+        filter_args = dict(zip(map(str, options),
+            options.values()))
+        return {'result': merlinx.filter(**filter_args).result,}
