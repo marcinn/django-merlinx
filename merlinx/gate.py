@@ -13,10 +13,13 @@ def parse_response(response):
     returns dict of parts
     """
     parts = {}
-    while response:
-        plen, pname = int(response[:10]), response[10:30].strip()
-        parts[pname] = response[30:plen+30].decode('utf8')
-        response = response[plen+30:]
+    try:
+        while response:
+            plen, pname = int(response[:10]), response[10:30].strip()
+            parts[pname] = response[30:plen+30].decode('utf8')
+            response = response[plen+30:]
+    except ValueError:
+        parts = {}
     return parts
 
 
@@ -54,8 +57,8 @@ class SimpleGate(object):
     def _search(self, type, **opts):
         parts = parse_response(self.client.fetch(searchtype=type,
             parts=self.default_parts + ['searchform'], **opts))
-        self.stylesheets = parts['headercss']
-        self.javascripts = parts['headerjs']
+        self.stylesheets = parts.get('headercss', '')
+        self.javascripts = parts.get('headerjs', '')
         self.parts = parts
         return self
 

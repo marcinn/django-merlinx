@@ -33,12 +33,15 @@ class EP3Client(object):
 
         if plain:
             params['ep3_plaindata'] = 1
+
+        params2 = dict([(k,v.encode('utf-8', 'ignore')) for k, v in params.items() if isinstance(v,unicode)])
+        params.update(params2)
         
         if searchtype:
-            url  = '%s/%s/%s/%s?%s' % (self.IBEURL, self.agent, self.affiliate,
+            url  = '%s/%s/%s/%s/?%s' % (self.IBEURL, self.agent, self.affiliate,
                     searchtype or '', urllib.unquote(urllib.urlencode(params)))
         else:
-            url  = '%s/%s/%s?%s' % (self.IBEURL, self.agent, self.affiliate,
+            url  = '%s/%s/%s/?%s' % (self.IBEURL, self.agent, self.affiliate,
                     urllib.unquote(urllib.urlencode(params)))
 
         f = urllib.urlopen(url)

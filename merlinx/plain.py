@@ -3,24 +3,27 @@ from client import EP3Client
 
 
 def parse_response(response):
-    m = re.search(r'\n(SF@.+?)\n(.+?)\n', response, re.MULTILINE + re.DOTALL)
-    if not m:
-        raise ValueError('Invalid response')
-    
-    search_query = dict(zip(m.group(1).split('@')[1:], 
-        m.group(2).split('@')[1:]))
+    try:
+        m = re.search(r'\n(SF@.+?)\n(.+?)\n', response, re.MULTILINE + re.DOTALL)
+        if not m:
+            raise ValueError('Invalid response')
+        
+        search_query = dict(zip(m.group(1).split('@')[1:], 
+            m.group(2).split('@')[1:]))
 
-    m = re.search(r'\n(V@.+?)\n(.+)\nJS\n', response, re.MULTILINE + re.DOTALL)
-    result = []
-    if m:
-        cols = m.group(1).split('@')[1:]
-        s = m.group(2)
-        lines = [line.split('@') for line in s.split('\n')]
-        for line in lines:
-            if line[0]:
-                break
-            result.append(dict(zip(cols, line[1:])))
-    return PlainResult(query=search_query, items=result)
+        m = re.search(r'\n(V@.+?)\n(.+)\nJS\n', response, re.MULTILINE + re.DOTALL)
+        result = []
+        if m:
+            cols = m.group(1).split('@')[1:]
+            s = m.group(2)
+            lines = [line.split('@') for line in s.split('\n')]
+            for line in lines:
+                if line[0]:
+                    break
+                result.append(dict(zip(cols, line[1:])))
+        return PlainResult(query=search_query, items=result)
+    except ValueError:
+        return PlainResult()
 
 
 class PlainResult(object):
