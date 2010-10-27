@@ -10,4 +10,8 @@ class MerlinXQuery(Widget):
     def get_context(self, value, options):
         filter_args = dict(zip(map(str, options),
             options.values()))
-        return {'result': merlinx.filter(**filter_args).result,}
+        try:
+            return {'result': merlinx.filter(**filter_args).result,}
+        except IOError:
+            return {}
+

@@ -19,8 +19,10 @@ def generic_gate(request, method, template_name=None):
     gate = simple_gate(settings.AGENT_ID, settings.AFFILIATE)
     gate_params = _parse_gate_request(gate, request)
 
-    ctx = {'gate': getattr(gate, method)(**gate_params),}
-
+    try:
+        ctx = {'gate': getattr(gate, method)(**gate_params),}
+    except IOError:
+        ctx = {}   
     return render_to_response(template_name or 'merlinx/gate/simple.html',
         context_instance=RequestContext(request, ctx))
 
